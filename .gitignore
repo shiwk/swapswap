@@ -1,0 +1,10 @@
+/node_modules/
+/build/
+
+/.idea
+/data/*.json
+
+package-lock.json
+yarn.lock
+
+/env.js
