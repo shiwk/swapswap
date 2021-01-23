@@ -87,7 +87,7 @@ async function wait(seconds){
         let roundCount = await getSwapRoundCount();
         let treecount = await getTreeCount();
 
-        if (treecount <= roundCount)
+        if (Number(treecount) <= Number(roundCount))
             break;
 
         let root = await getTreeRoot(roundCount);
