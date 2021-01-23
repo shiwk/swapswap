@@ -1,7 +1,7 @@
 const ENV = require('../env');
 const AElf = require('aelf-sdk');
 const Wallet = AElf.wallet;
-const ELFHelper = require('./elf_helper');
+const AELFHelper = require('./aelf_helper');
 
 let aelf = new AElf(new AElf.providers.HttpProvider(ENV.aelf.provider));
 let wallet = Wallet.getWalletByPrivateKey(ENV.aelf.defaultPriKey);
@@ -24,7 +24,7 @@ async function transfer(to, symbol, amount){
         amount: amount
     });
 
-    await ELFHelper.pollMining(aelf, transferTx.TransactionId);
+    await AELFHelper.pollMining(aelf, transferTx.TransactionId);
 }
 
 async function approve(spender, symbol, amount){
@@ -35,7 +35,7 @@ async function approve(spender, symbol, amount){
         amount: amount
     });
 
-    await ELFHelper.pollMining(aelf, approveTx.TransactionId);
+    await AELFHelper.pollMining(aelf, approveTx.TransactionId);
 }
 
 // (async () => {

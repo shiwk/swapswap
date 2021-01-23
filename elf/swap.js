@@ -1,7 +1,7 @@
 const ENV = require('../env');
 const AElf = require('aelf-sdk');
 const Wallet = AElf.wallet;
-const ELFHelper = require('./elf_helper');
+const AELFHelper = require('./aelf_helper');
 const token = require('./token');
 
 
@@ -33,7 +33,7 @@ async function deposit(symbol, amount) {
         amount: amount
     });
 
-    await ELFHelper.pollMining(aelf, dep.TransactionId);
+    await AELFHelper.pollMining(aelf, dep.TransactionId);
 }
 
 async function swapRoundCount() {
@@ -51,7 +51,7 @@ async function createSwapRound(merkleTreeRoot, roundId) {
         roundId: roundId
     });
 
-    await ELFHelper.pollMining(aelf, swap.TransactionId);
+    await AELFHelper.pollMining(aelf, swap.TransactionId);
 }
 
 // (async () => {
