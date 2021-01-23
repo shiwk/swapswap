@@ -1,8 +1,8 @@
 {
-  "name": "airdrop",
+  "name": "swapswap",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "eth2elf.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,6 +1,6 @@
-const ENV = require('./env');
+const ENV = require('../env');
 const WEB3 = require('web3');
-const LOCK = require('./build/contracts/LockMapping.json');
+const LOCK = require('../build/contracts/LockMapping.json');
 
 let web3 = new WEB3(ENV.eth.provider);
 let lockContract = new web3.eth.Contract(LOCK.abi, ENV.eth.lockContract);
@@ -21,21 +21,26 @@ async function getReceipt(id) {
 
 async function getReceiptCount() {
     return await lockContract.methods.receiptCount().call({from: ENV.eth.defaultAddress}, function (error, result) {
-        console.log(result);
+        console.log("receipt count:", result);
     });
 }
 
-module.exports = {
-    getLockInfo: getReceipt,
-    getLockTimes: getReceiptCount
+
+async function getTotalAmountInReceipts() {
+    return await lockContract.methods.totalAmountInReceipts().call({from: ENV.eth.defaultAddress}, function (error, result) {
+        console.log("totalAmountInReceipts:", result);
+    });
 }
 
-// getReceipt(0).then(res => {
-//     console.log(res);
-// });
-//
-//
-// getReceiptCount().then(res => {
-//     console.log(res);
-//     console.log('Done.');
-// });
+// (async () => {
+//     await getReceiptCount();
+//     await getTotalAmountInReceipts();
+// })();
+
+module.exports = {
+    getLockInfo: getReceipt,
+    getLockTimes: getReceiptCount,
+    getTotalLockAmount: getTotalAmountInReceipts
+}
+
+
