@@ -18,7 +18,7 @@ async function getSwapPair(swapId, symbol) {
 }
 
 async function depositAmount(symbol) {
-    let swapPair = await getSwapPair(ENV.aelf.swap.swapId, 'ELF');
+    let swapPair = await getSwapPair(ENV.aelf.swap.swapId, symbol);
     console.log(`deposit amount for ${symbol}:`, swapPair.depositAmount);
     console.log(`swapped amount for ${symbol}:`, swapPair.swappedAmount);
     return Number(swapPair.depositAmount) + Number(swapPair.swappedAmount);
