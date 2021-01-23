@@ -58,18 +58,19 @@ async function wait(seconds){
     let depositELF = await getDepositAmount('ELF');
     let depositLOT = await getDepositAmount('LOT');
 
-    let expectedELF = totalLockAmount / 10_000_000_000 / 400;
+    let expectedELF = Math.ceil(totalLockAmount / 10_000_000_000 / 400);
     console.log("expectedELF:", expectedELF);
 
     if (expectedELF + ENV.aelf.swap.init_deposit.elf > depositELF) {
-        console.log("more ELF needed:", expectedELF);
+        console.log("more ELF needed:", expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
         await deposit('ELF', expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
     }
 
-    let expectedLOT = totalLockAmount / 10_000_000_000;
+    let expectedLOT = Math.ceil(totalLockAmount / 10_000_000_000);
     console.log("expectedLOT:", expectedLOT);
+
     if (expectedLOT + ENV.aelf.swap.init_deposit.lot > depositLOT) {
-        console.log("more LOT needed:", expectedELF);
+        console.log("more LOT needed:", expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
         await deposit('LOT', expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
     }
 
