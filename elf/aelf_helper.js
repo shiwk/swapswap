@@ -8,7 +8,7 @@ async function pollMining(aelf, transactionId) {
 
     const currentResult = await aelf.chain.getTxResult(transactionId);
 
-    if (currentResult.Status !== 'PENDING') {
+    if (currentResult.Status === 'MINED') {
         console.log('Tx Result:\n', currentResult);
         return currentResult;
     }
