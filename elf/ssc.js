@@ -36,7 +36,7 @@ async function Draw(period){
     let periodInfo = await sscContract.GetPeriod.call({
         value: period
     });
-    console.log(`*** Period ${period} LuckNumber: ${periodInfo.luckyNumber}; DrawBlockNumber: ${periodInfo.drawBlockNumber}`)
+    console.log(`*** Period ${period} LuckNumber: ${periodInfo.luckyNumber}; DrawBlockNumber: ${periodInfo.drawBlockNumber}`);
 }
 
 module.exports = {

@@ -13,7 +13,7 @@ async function pollMining(aelf, transactionId) {
         return currentResult;
     }
 
-    await pollMining(aelf, transactionId);
+    return await pollMining(aelf, transactionId);
 }
 
 module.exports = {

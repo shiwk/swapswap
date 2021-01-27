@@ -77,7 +77,7 @@ async function wait(seconds){
     while (true) {
         let lockTimes = await getLockTimes();
         let receiptCountInTree = await getReceiptCountInTree();
-        if (lockTimes <= receiptCountInTree)
+        if (Number(lockTimes) <= Number(receiptCountInTree))
             break;
         await generateMerkleTree();
         await wait(5000);
