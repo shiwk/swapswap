@@ -1,3 +1,4 @@
+const AElf = require('aelf-sdk');
 
 async function pollMining(transactionId, logger) {
     console.log(`>> Waiting for ${transactionId} the transaction to be mined.`);
