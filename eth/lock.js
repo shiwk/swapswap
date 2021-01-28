@@ -20,15 +20,14 @@ async function getReceipt(id) {
 }
 
 async function getReceiptCount() {
-    return await lockContract.methods.receiptCount().call({from: ENV.eth.defaultAddress}, function (error, result) {
-        console.log("receipt count:", result);
+    return await lockContract.methods.receiptCoun().call({from: ENV.eth.defaultAddress}, function (error, result) {
     });
 }
 
 
 async function getTotalAmountInReceipts() {
     return await lockContract.methods.totalAmountInReceipts().call({from: ENV.eth.defaultAddress}, function (error, result) {
-        console.log("totalAmountInReceipts:", result);
+
     });
 }
 

@@ -17,6 +17,7 @@ async function balanceOf(address, symbol){
 }
 
 async function transfer(to, symbol, amount){
+    console.log(`Transfer ${amount} ${symbol} to ${to}.`);
     let tokenContract = await aelf.chain.contractAt(ENV.aelf.tokenContract, wallet);
     let transferTx = await tokenContract.Transfer({
         symbol: symbol,
@@ -28,6 +29,7 @@ async function transfer(to, symbol, amount){
 }
 
 async function approve(spender, symbol, amount){
+    console.log(`Approve ${amount} ${symbol} to ${spender}.`);
     let tokenContract = await aelf.chain.contractAt(ENV.aelf.tokenContract, wallet);
     let approveTx = await tokenContract.Approve({
         symbol: symbol,

@@ -9,19 +9,12 @@ let aelf = new AElf(new AElf.providers.HttpProvider(ENV.aelf.provider));
 let wallet = Wallet.getWalletByPrivateKey(ENV.aelf.defaultPriKey);
 
 
-async function getSwapPair(swapId, symbol) {
+async function swapPair(symbol) {
     let swapContract = await aelf.chain.contractAt(ENV.aelf.swapContract, wallet);
     return await swapContract.GetSwapPair.call({
-        swapId: swapId,
+        swapId: ENV.aelf.swap.swapId,
         targetTokenSymbol: symbol
     });
-}
-
-async function depositAmount(symbol) {
-    let swapPair = await getSwapPair(ENV.aelf.swap.swapId, symbol);
-    console.log(`deposit amount for ${symbol}:`, swapPair.depositAmount);
-    console.log(`swapped amount for ${symbol}:`, swapPair.swappedAmount);
-    return Number(swapPair.depositAmount) + Number(swapPair.swappedAmount);
 }
 
 async function deposit(symbol, amount) {
@@ -36,24 +29,6 @@ async function deposit(symbol, amount) {
     await AELFHelper.pollMining(aelf, dep.TransactionId);
 }
 
-async function swapRoundCount() {
-    console.log(`Try get round count..`);
-    let swapPair = await getSwapPair(ENV.aelf.swap.swapId, 'ELF');
-    console.log("round count:", swapPair.roundCount);
-    return swapPair.roundCount;
-}
-
-async function createSwapRound(merkleTreeRoot, roundId) {
-    let swapContract = await aelf.chain.contractAt(ENV.aelf.swapContract, wallet);
-    let swap = await swapContract.CreateSwapRound({
-        swapId: ENV.aelf.swap.swapId,
-        merkleTreeRoot: merkleTreeRoot,
-        roundId: roundId
-    });
-
-    await AELFHelper.pollMining(aelf, swap.TransactionId);
-}
-
 // (async () => {
 //     await swapRoundCount();
 //     await depositAmount('ELF');
@@ -63,8 +38,6 @@ async function createSwapRound(merkleTreeRoot, roundId) {
 // })();
 
 module.exports = {
-    getSwapRoundCount: swapRoundCount,
-    getDepositAmount: depositAmount,
+    getSwapPair: swapPair,
     deposit: deposit,
-    createSwapRound: createSwapRound
 }

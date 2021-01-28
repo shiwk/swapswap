@@ -26,7 +26,7 @@ async function draw(period) {
     return await lottery.draw(period).catch(console.log);
 }
 
-async function getRewardList() {
+function getRewardList() {
     let info = rewardInfo.lists;
     let rewardList = [];
     // let drawPeriod = info[period -1].period;
@@ -37,7 +37,7 @@ async function getRewardList() {
 
 (async () => {
     let currentPeriod = await getCurrentPeriodNumber();
-    let allRewardList = await getRewardList();
+    let allRewardList = getRewardList();
     let rewards = allRewardList[currentPeriod.value];
     let count = Object.values(rewards);
     let rewardCount =0;
@@ -46,7 +46,7 @@ async function getRewardList() {
     }, 0);
 
     let sales = await getSales(currentPeriod.value);
-    sales = sales === null ? 0 : sales.value;
+    sales = sales ? sales.value : 0;
     if (sales < rewardCount){
         console.log('Need buy lottery...')
         let amount = rewardCount - sales;

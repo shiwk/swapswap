@@ -2,11 +2,10 @@
 
 
 /.idea
-/data/*.json
-
 package-lock.json
 yarn.lock
 
 /env.js
 
 /rewardList.json
+/logs/*

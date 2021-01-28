@@ -1,98 +1,127 @@
 const lock = require('./eth/lock');
 const merkle = require('./eth/merkle');
 const swap = require('./elf/swap');
+const merkleTreeRecorder = require('./elf/merkle_tree_recorder');
 const ENV = require('./env');
+const log = require('./logger');
 
 
-async function getDepositAmount(symbol){
-    return await swap.getDepositAmount(symbol).catch(console.log);
+const logger = log.createLogger('logs/eth2elf');
+
+async function getDepositAmount(symbol) {
+    let pair = await swap.getSwapPair(symbol).catch(err => {
+        logger.error(err);
+        throw err;
+    });
+    logger.info(`deposit amount for ${symbol}:`, pair.depositAmount);
+    logger.info(`swapped amount for ${symbol}:`, pair.swappedAmount);
+    return Number(pair.depositAmount) + Number(pair.swappedAmount);
 }
 
-async function getSwapRoundCount() {
-    return await swap.getSwapRoundCount().catch(console.log);
-}
-
-async function deposit(symbol, amount){
-    return await swap.deposit(symbol, amount).catch(console.log);
-}
-
-async function createNewRound(merkleTreeRoot, roundId){
-    return await swap.createSwapRound(merkleTreeRoot, roundId).catch(console.log);
+async function deposit(symbol, amount) {
+    logger.info(`Deposit ${amount} ${symbol} to swap contract.`);
+    await swap.deposit(symbol, amount).catch(logger.info);
 }
 
 async function getLockTimes() {
-    return await lock.getLockTimes().catch(console.log);
+    let res = await lock.getLockTimes().catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
+    logger.info("receipt count:", res);
+    return Number(res);
 }
 
-async function getTotalLockAmount(){
-    return await lock.getTotalLockAmount().catch(console.log);
+async function getTotalLockAmount() {
+    let res = await lock.getTotalLockAmount().catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
+    logger.info("totalAmountInReceipts:", res);
+    return Number(res);
 }
 
-async function getReceiptCountInTree(){
-    return await merkle.getReceiptCountInTree().catch(console.log);
+async function getMerkleTree(expectCount) {
+    logger.info(`Try get merkle tree, expect count:`, expectCount);
+    return await merkle.getMerkleTree(expectCount).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
-async function generateMerkleTree(){
-    return await merkle.generateMerkleTree().catch(console.log);
+async function getLastRecordedLeafIndex() {
+    let res = await merkleTreeRecorder.getLastRecordedLeafIndex().catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
+    logger.info('LastRecordedLeafIndex:', res);
+    return Number(res);
 }
 
-async function getTreeCount() {
-    return await merkle.getTreeCount().catch(console.log);
+async function getSatisfiedTreeCount() {
+    let res = await merkleTreeRecorder.getSatisfiedTreeCount().catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
+    logger.info('SatisfiedTreeCount:', res);
+    return Number(res);
 }
 
-async function getTreeRoot(index) {
-    return await merkle.getTreeRoot(index).catch(console.log);
+async function recordMerkleTree(lastLeafIndex, root) {
+    logger.info(`Try record merkle tree, lastLeafIndex:`, lastLeafIndex);
+    await merkleTreeRecorder.recordMerkleTree(lastLeafIndex, root).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
-
-async function wait(seconds){
-    await new Promise(resolve => setTimeout(resolve, seconds))
+async function wait(millSeconds) {
+    await new Promise(resolve => setTimeout(resolve, millSeconds))
         .catch(function () {
-            console.log("Promise Rejected");
+            logger.error("Promise Rejected");
         });
 }
 
-(async () => {
-
+async function depositToSwapIfNeeded() {
     let totalLockAmount = await getTotalLockAmount();
     let depositELF = await getDepositAmount('ELF');
     let depositLOT = await getDepositAmount('LOT');
 
     let expectedELF = Math.ceil(totalLockAmount / 10_000_000_000 / 400);
-    console.log("expectedELF:", expectedELF);
+    logger.info("expectedELF:", expectedELF);
 
     if (expectedELF + ENV.aelf.swap.init_deposit.elf > depositELF) {
-        console.log("more ELF needed:", expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
+        logger.info("more ELF needed:", expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
         await deposit('ELF', expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
     }
 
     let expectedLOT = Math.ceil(totalLockAmount / 10_000_000_000);
-    console.log("expectedLOT:", expectedLOT);
+    logger.info("expectedLOT:", expectedLOT);
 
     if (expectedLOT + ENV.aelf.swap.init_deposit.lot > depositLOT) {
-        console.log("more LOT needed:", expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
+        logger.info("more LOT needed:", expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
         await deposit('LOT', expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
     }
+}
 
+(async () => {
     while (true) {
+        await depositToSwapIfNeeded();
         let lockTimes = await getLockTimes();
-        let receiptCountInTree = await getReceiptCountInTree();
-        if (Number(lockTimes) <= Number(receiptCountInTree))
-            break;
-        await generateMerkleTree();
-        await wait(5000);
-    }
+        let lastRecordedLeafIndex = await getLastRecordedLeafIndex();
 
-    while (true){
-        let roundCount = await getSwapRoundCount();
-        let treecount = await getTreeCount();
-
-        if (Number(treecount) <= Number(roundCount))
+        if (lockTimes <= lastRecordedLeafIndex + 1)
             break;
 
-        let root = await getTreeRoot(roundCount);
-        await createNewRound(root, roundCount);
+        let satisfiedTreeCount = await getSatisfiedTreeCount();
+        let expectCount = (satisfiedTreeCount + 1) * ENV.aelf.record.maximal_leaf_count;
+        let merkleTree = await getMerkleTree(expectCount);
+
+        let lastLeafIndex = Number(merkleTree[2]) + Number(merkleTree[3]) - 1;
+        let root = merkleTree[1];
+        await recordMerkleTree(lastLeafIndex, root);
+        await wait(1000);
     }
 
-    console.log('Done.');
+    logger.info('Done.');
 })();
