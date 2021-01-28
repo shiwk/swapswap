@@ -29,7 +29,10 @@ async function prepareDraw() {
         throw err;
     });
 
-    await AELFHelper.pollMining(tx.TransactionId, logger);
+    await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
 async function draw(period) {
@@ -38,7 +41,11 @@ async function draw(period) {
         logger.error(err.stack);
         throw err;
     });
-    await AELFHelper.pollMining(tx.TransactionId, logger);
+
+    await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 
     let periodInfo = await ssc.getPeriod(period).catch(err => {
         logger.error(err.stack);
@@ -48,9 +55,12 @@ async function draw(period) {
 }
 
 (async () => {
-    await prepareDraw();
     let currentPeriodNumber = await getCurrentPeriodNumber();
-    let period = currentPeriodNumber === 2 ? 1 : await getLatestDrawPeriodNumber() + 1;
+    let period = currentPeriodNumber === 1 ? 1 : await getLatestDrawPeriodNumber() + 1;
+
+    if (currentPeriodNumber === 1 || currentPeriodNumber === period)
+        await prepareDraw();
+
     await draw(period);
     logger.info('Done.');
 })();

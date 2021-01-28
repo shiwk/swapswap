@@ -27,14 +27,20 @@ async function deposit(symbol, amount) {
         logger.error(err.stack);
         throw err;
     });
-    await AELFHelper.pollMining(approve.TransactionId, logger);
+    await AELFHelper.pollMining(approve.TransactionId, logger).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 
     logger.info(`Deposit ${amount} ${symbol} to swap contract.`);
     let tx = await swap.deposit(symbol, amount).catch(err => {
         logger.error(err.stack);
         throw err;
     });
-    await AELFHelper.pollMining(tx.TransactionId, logger);
+    await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
 async function getLockTimes() {
@@ -88,7 +94,10 @@ async function recordMerkleTree(lastLeafIndex, root) {
         throw err;
     });
 
-    await AELFHelper.pollMining(tx.TransactionId, logger);
+    await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
 async function wait(millSeconds) {

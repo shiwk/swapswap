@@ -2,7 +2,7 @@ const AElf = require('aelf-sdk');
 const ENV = require('../env');
 
 async function pollMining(transactionId, logger) {
-    console.log(`>> Waiting for ${transactionId} the transaction to be mined.`);
+    logger.info(`>> Waiting for ${transactionId} the transaction to be mined.`);
 
     await new Promise(resolve => setTimeout(resolve, 2000))
         .catch(function () {
@@ -17,7 +17,10 @@ async function pollMining(transactionId, logger) {
         return currentResult;
     }
 
-    return await pollMining(aelf, transactionId);
+    return await pollMining(transactionId, logger).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
 module.exports = {
