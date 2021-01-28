@@ -45,10 +45,9 @@ async function draw(period) {
 }
 
 (async () => {
-    let latestPeriodNumber = await getLatestDrawPeriodNumber();
-    let currentPeriodNumber = await getCurrentPeriodNumber();
     await prepareDraw();
-    let period = currentPeriodNumber === 1 ? 1 : latestPeriodNumber + 1;
+    let currentPeriodNumber = await getCurrentPeriodNumber();
+    let period = currentPeriodNumber === 2 ? 1 : await getLatestDrawPeriodNumber() + 1;
     await draw(period);
     logger.info('Done.');
 })();

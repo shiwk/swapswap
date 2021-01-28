@@ -19,6 +19,7 @@ async function getLatestDrawPeriod() {
 }
 
 async function getPeriod(period){
+    let sscContract = await aelf.chain.contractAt(ENV.aelf.sscContract, wallet);
     return await sscContract.GetPeriod.call({
         value: period
     });
