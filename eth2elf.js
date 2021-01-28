@@ -13,8 +13,8 @@ async function getDepositAmount(symbol) {
         logger.error(err);
         throw err;
     });
-    logger.info(`deposit amount for ${symbol}:`, pair.depositAmount);
-    logger.info(`swapped amount for ${symbol}:`, pair.swappedAmount);
+    logger.info(`deposit amount for ${symbol}: ${pair.depositAmount}`);
+    logger.info(`swapped amount for ${symbol}: ${pair.swappedAmount}`);
     return Number(pair.depositAmount) + Number(pair.swappedAmount);
 }
 
@@ -28,7 +28,7 @@ async function getLockTimes() {
         logger.error(err.stack);
         throw err;
     });
-    logger.info("receipt count:", res);
+    logger.info(`receipt count: ${res}`);
     return Number(res);
 }
 
@@ -37,12 +37,12 @@ async function getTotalLockAmount() {
         logger.error(err.stack);
         throw err;
     });
-    logger.info("totalAmountInReceipts:", res);
+    logger.info(`totalAmountInReceipts: ${res}`);
     return Number(res);
 }
 
 async function getMerkleTree(expectCount) {
-    logger.info(`Try get merkle tree, expect count:`, expectCount);
+    logger.info(`Try get merkle tree, expect count: ${expectCount}`);
     return await merkle.getMerkleTree(expectCount).catch(err => {
         logger.error(err.stack);
         throw err;
@@ -54,7 +54,7 @@ async function getLastRecordedLeafIndex() {
         logger.error(err.stack);
         throw err;
     });
-    logger.info('LastRecordedLeafIndex:', res);
+    logger.info(`LastRecordedLeafIndex: ${res}`);
     return Number(res);
 }
 
@@ -63,12 +63,12 @@ async function getSatisfiedTreeCount() {
         logger.error(err.stack);
         throw err;
     });
-    logger.info('SatisfiedTreeCount:', res);
+    logger.info(`SatisfiedTreeCount: ${res}`);
     return Number(res);
 }
 
 async function recordMerkleTree(lastLeafIndex, root) {
-    logger.info(`Try record merkle tree, lastLeafIndex:`, lastLeafIndex);
+    logger.info(`Try record merkle tree, lastLeafIndex: ${lastLeafIndex}`);
     await merkleTreeRecorder.recordMerkleTree(lastLeafIndex, root).catch(err => {
         logger.error(err.stack);
         throw err;
@@ -88,18 +88,18 @@ async function depositToSwapIfNeeded() {
     let depositLOT = await getDepositAmount('LOT');
 
     let expectedELF = Math.ceil(totalLockAmount / 10_000_000_000 / 400);
-    logger.info("expectedELF:", expectedELF);
+    logger.info(`expectedELF: ${xpectedELF}`);
 
     if (expectedELF + ENV.aelf.swap.init_deposit.elf > depositELF) {
-        logger.info("more ELF needed:", expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
+        logger.info(`more ELF needed: ${expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF}`);
         await deposit('ELF', expectedELF + ENV.aelf.swap.init_deposit.elf - depositELF);
     }
 
     let expectedLOT = Math.ceil(totalLockAmount / 10_000_000_000);
-    logger.info("expectedLOT:", expectedLOT);
+    logger.info(`expectedLOT: ${expectedLOT}`);
 
     if (expectedLOT + ENV.aelf.swap.init_deposit.lot > depositLOT) {
-        logger.info("more LOT needed:", expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
+        logger.info(`more LOT needed: ${expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT}`);
         await deposit('LOT', expectedLOT + ENV.aelf.swap.init_deposit.lot - depositLOT);
     }
 }
