@@ -5,7 +5,7 @@
 package-lock.json
 yarn.lock
 
-/env.js
+/env.*
 
 /rewardList.json
 /logs/*

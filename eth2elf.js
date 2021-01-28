@@ -10,7 +10,7 @@ const logger = log.createLogger('logs/eth2elf');
 
 async function getDepositAmount(symbol) {
     let pair = await swap.getSwapPair(symbol).catch(err => {
-        logger.error(err);
+        logger.error(err.stack);
         throw err;
     });
     logger.info(`deposit amount for ${symbol}: ${pair.depositAmount}`);
@@ -20,7 +20,10 @@ async function getDepositAmount(symbol) {
 
 async function deposit(symbol, amount) {
     logger.info(`Deposit ${amount} ${symbol} to swap contract.`);
-    await swap.deposit(symbol, amount).catch(logger.info);
+    await swap.deposit(symbol, amount).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
 }
 
 async function getLockTimes() {

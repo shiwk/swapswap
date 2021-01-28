@@ -10,13 +10,18 @@ async function getCurrentPeriod() {
     let sscContract = await aelf.chain.contractAt(ENV.aelf.sscContract, wallet);
     let currentPeriod = await sscContract.GetCurrentPeriod.call();
 
-    console.log(`Current period is ${currentPeriod.periodNumber}`);
     return currentPeriod;
 }
 
 async function getLatestDrawPeriod() {
     let sscContract = await aelf.chain.contractAt(ENV.aelf.sscContract, wallet);
     return await sscContract.GetLatestDrawPeriod.call();
+}
+
+async function getPeriod(period){
+    return await sscContract.GetPeriod.call({
+        value: period
+    });
 }
 
 async function prepareDraw() {
@@ -32,16 +37,12 @@ async function draw(period) {
     });
 
     await AELFHelper.pollMining(aelf, drawTx.TransactionId);
-
-    let periodInfo = await sscContract.GetPeriod.call({
-        value: period
-    });
-    console.log(`*** Period ${period} LuckNumber: ${periodInfo.luckyNumber}; DrawBlockNumber: ${periodInfo.drawBlockNumber}`);
 }
 
 module.exports = {
     getCurrentPeriod: getCurrentPeriod,
     getLatestDrawPeriod: getLatestDrawPeriod,
     prepareDraw: prepareDraw,
-    draw: draw
+    draw: draw,
+    getPeriod: getPeriod
 }
