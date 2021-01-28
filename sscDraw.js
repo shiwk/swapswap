@@ -1,6 +1,6 @@
 const ssc = require('./elf/ssc');
 const log = require('./logger');
-
+const AELFHelper = require('./elf/aelf_helper');
 const logger = log.createLogger('logs/sscDraw');
 
 async function getCurrentPeriodNumber() {
@@ -8,7 +8,7 @@ async function getCurrentPeriodNumber() {
         logger.error(err.stack);
         throw err;
     });
-    logger.info(`Current period is ${currentPeriod}`);
+    logger.info(`Current period is ${currentPeriod.toString()}`);
     return Number(currentPeriod.periodNumber);
 }
 
@@ -18,24 +18,27 @@ async function getLatestDrawPeriodNumber() {
         throw err;
     });
 
-    logger.info(`lastDrawPeriod: ${lastDrawPeriod.number}`);
+    logger.info(`lastDrawPeriod: ${lastDrawPeriod.periodNumber}`);
     return Number(lastDrawPeriod.periodNumber);
 }
 
 async function prepareDraw() {
     logger.info("prepare draw..");
-    return await ssc.prepareDraw().catch(err => {
+    let tx = await ssc.prepareDraw().catch(err => {
         logger.error(err.stack);
         throw err;
     });
+
+    await AELFHelper.pollMining(tx.TransactionId, logger);
 }
 
 async function draw(period) {
     logger.info("draw..");
-    await ssc.draw(period).catch(err => {
+    let tx = await ssc.draw(period).catch(err => {
         logger.error(err.stack);
         throw err;
     });
+    await AELFHelper.pollMining(tx.TransactionId, logger);
 
     let periodInfo = await ssc.getPeriod(period).catch(err => {
         logger.error(err.stack);

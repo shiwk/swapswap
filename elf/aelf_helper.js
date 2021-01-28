@@ -1,15 +1,17 @@
-async function pollMining(aelf, transactionId) {
+
+async function pollMining(transactionId, logger) {
     console.log(`>> Waiting for ${transactionId} the transaction to be mined.`);
 
     await new Promise(resolve => setTimeout(resolve, 2000))
         .catch(function () {
-            console.log("Promise Rejected");
+            logger.error("PollMining Promise Rejected");
         });
 
+    let aelf = new AElf(new AElf.providers.HttpProvider(ENV.aelf.provider));
     const currentResult = await aelf.chain.getTxResult(transactionId);
 
     if (currentResult.Status === 'MINED') {
-        console.log('Tx Result:\n', currentResult);
+        logger.info('Tx Result:\n', currentResult);
         return currentResult;
     }
 

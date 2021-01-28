@@ -1,16 +1,13 @@
 const ENV = require('../env');
 const AElf = require('aelf-sdk');
 const Wallet = AElf.wallet;
-const AELFHelper = require('./aelf_helper');
 
 let aelf = new AElf(new AElf.providers.HttpProvider(ENV.aelf.provider));
 let wallet = Wallet.getWalletByPrivateKey(ENV.aelf.defaultPriKey);
 
 async function getCurrentPeriod() {
     let sscContract = await aelf.chain.contractAt(ENV.aelf.sscContract, wallet);
-    let currentPeriod = await sscContract.GetCurrentPeriod.call();
-
-    return currentPeriod;
+    return await sscContract.GetCurrentPeriod.call();
 }
 
 async function getLatestDrawPeriod() {
@@ -27,17 +24,14 @@ async function getPeriod(period){
 
 async function prepareDraw() {
     let sscContract = await aelf.chain.contractAt(ENV.aelf.sscContract, wallet);
-    let prepareDrawTx = await sscContract.PrepareDraw();
-    await AELFHelper.pollMining(aelf, prepareDrawTx.TransactionId);
+    return await sscContract.PrepareDraw();
 }
 
 async function draw(period) {
     let sscContract = await aelf.chain.contractAt(ENV.aelf.sscContract, wallet);
-    let drawTx = await sscContract.Draw({
+    return await sscContract.Draw({
         value: period
     });
-
-    await AELFHelper.pollMining(aelf, drawTx.TransactionId);
 }
 
 module.exports = {

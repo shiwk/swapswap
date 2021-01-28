@@ -1,9 +1,11 @@
 const lock = require('./eth/lock');
 const merkle = require('./eth/merkle');
 const swap = require('./elf/swap');
+const token = require('./elf/token');
 const merkleTreeRecorder = require('./elf/merkle_tree_recorder');
 const ENV = require('./env');
 const log = require('./logger');
+const AELFHelper = require('./elf/aelf_helper');
 
 
 const logger = log.createLogger('logs/eth2elf');
@@ -19,11 +21,20 @@ async function getDepositAmount(symbol) {
 }
 
 async function deposit(symbol, amount) {
-    logger.info(`Deposit ${amount} ${symbol} to swap contract.`);
-    await swap.deposit(symbol, amount).catch(err => {
+    logger.info(`Approve ${amount} ${symbol} to swap contract.`);
+
+    let approve = await token.approve(ENV.aelf.swapContract, symbol, amount).catch(err => {
         logger.error(err.stack);
         throw err;
     });
+    await AELFHelper.pollMining(approve.TransactionId, logger);
+
+    logger.info(`Deposit ${amount} ${symbol} to swap contract.`);
+    let tx = await swap.deposit(symbol, amount).catch(err => {
+        logger.error(err.stack);
+        throw err;
+    });
+    await AELFHelper.pollMining(tx.TransactionId, logger);
 }
 
 async function getLockTimes() {
@@ -72,10 +83,12 @@ async function getSatisfiedTreeCount() {
 
 async function recordMerkleTree(lastLeafIndex, root) {
     logger.info(`Try record merkle tree, lastLeafIndex: ${lastLeafIndex}`);
-    await merkleTreeRecorder.recordMerkleTree(lastLeafIndex, root).catch(err => {
+    let tx = await merkleTreeRecorder.recordMerkleTree(lastLeafIndex, root).catch(err => {
         logger.error(err.stack);
         throw err;
     });
+
+    await AELFHelper.pollMining(tx.TransactionId, logger);
 }
 
 async function wait(millSeconds) {
