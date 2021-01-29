@@ -38,7 +38,7 @@ async function getSales(period) {
 }
 
 async function buy(amount) {
-    let lotteryContract = await changeKey(ENV.aelf.tokenContract, ENV.aelf.testPriKey);
+    let lotteryContract = await changeKey(ENV.aelf.lotteryContract, ENV.aelf.testPriKey);
     return await lotteryContract.Buy({
         value: amount
     });
