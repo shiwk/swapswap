@@ -17,10 +17,7 @@ async function pollMining(transactionId, logger) {
         return currentResult;
     }
 
-    return await pollMining(transactionId, logger).catch(err => {
-        logger.error(err.stack);
-        throw err;
-    });
+    return await pollMining(transactionId, logger);
 }
 
 module.exports = {

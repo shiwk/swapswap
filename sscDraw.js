@@ -30,7 +30,7 @@ async function prepareDraw() {
     });
 
     await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
-        logger.error(err.stack);
+        logger.error(err.stack ? err.stack : err);
         throw err;
     });
 }
@@ -43,7 +43,7 @@ async function draw(period) {
     });
 
     await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
-        logger.error(err.stack);
+        logger.error(err.stack ? err.stack : err);
         throw err;
     });
 

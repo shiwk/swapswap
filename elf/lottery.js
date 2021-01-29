@@ -20,10 +20,14 @@ async function wait(seconds) {
 
 async function getCurrentPeriodNumber() {
     let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
-    let currentPeriod = await lotteryContract.GetCurrentPeriodNumber.call();
+    return await lotteryContract.GetCurrentPeriodNumber.call();
+}
 
-    console.log(`Before draw period is ${currentPeriod.value}`);
-    return currentPeriod;
+async function getPeriod(period) {
+    let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
+    return await lotteryContract.GetPeriod.call({
+        value: period
+    });
 }
 
 async function getSales(period) {
@@ -34,69 +38,72 @@ async function getSales(period) {
 }
 
 async function buy(amount) {
+    let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
+    return await lotteryContract.Buy({
+        value: amount
+    });
+}
+
+async function approveLot(amount) {
     let lotteryContract = await changeKey(ENV.aelf.lotteryContract, ENV.aelf.testPriKey);
     let tokenContract = await changeKey(ENV.aelf.tokenContract, ENV.aelf.testPriKey);
     let price = await lotteryContract.GetPrice.call();
     let exceptAmount = Number(price.value) * Number(amount);
-    let approveTx = await tokenContract.Approve({
+    return await tokenContract.Approve({
         symbol: "LOT",
         spender: ENV.aelf.lotteryContract,
         amount: exceptAmount
     });
-    await AELFHelper.pollMining(aelf, approveTx.TransactionId);
-
-    let buyTx = await lotteryContract.Buy({
-        value: amount
-    });
-
-    await AELFHelper.pollMining(aelf, buyTx.TransactionId);
 }
 
 async function setRewardListForOnePeriod(period, rewardList) {
     let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
-    let setRewardTx = await lotteryContract.SetRewardListForOnePeriod({
+    return await lotteryContract.SetRewardListForOnePeriod({
         period: period,
         rewards: rewardList
     });
-    await AELFHelper.pollMining(aelf, setRewardTx.TransactionId);
 }
 
-async function prepareDrawAndWait() {
+async function prepareDraw() {
     let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
-    let prepareDrawTx = await lotteryContract.PrepareDraw();
-    let {BlockNumber: height} = await AELFHelper.pollMining(aelf, prepareDrawTx.TransactionId);
+    return await lotteryContract.PrepareDraw();
+}
+
+async function waitDrawLag(height){
+    let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
     let currentHeight = await aelf.chain.getBlockHeight();
     let drawingLag = await lotteryContract.GetDrawingLag.call();
-    while (currentHeight < height + Number(drawingLag.value) + 50) {
+    while (currentHeight < height + Number(drawingLag.value) + 16) {
         await wait(10000);
         console.log('Waiting draw lag ...');
         currentHeight = await aelf.chain.getBlockHeight();
     }
-    console.log("***");
 }
 
 async function draw(period) {
     let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
-    let drawTx = await lotteryContract.Draw({
+    return await lotteryContract.Draw({
         value: period
     });
-
-    await AELFHelper.pollMining(aelf, drawTx.TransactionId);
-
-    let periodInfo = await lotteryContract.GetRewardResult.call({
-        value: period
-    });
-    console.log(`*** Period ${period}`)
-    for (let i = 0; i < periodInfo.rewardLotteries.length; i++) {
-        console.log(` reward Id: ${periodInfo.rewardLotteries[i]["id"]}`);
-    }
 }
+
+async function getRewardResult(period){
+    let lotteryContract = await aelf.chain.contractAt(ENV.aelf.lotteryContract, wallet);
+    return await lotteryContract.GetRewardResult.call({
+        value: period
+    });
+}
+
 
 module.exports = {
     getCurrentPeriodNumber: getCurrentPeriodNumber,
+    getPeriod: getPeriod,
     getSales: getSales,
     buy: buy,
     setRewardListForOnePeriod: setRewardListForOnePeriod,
-    prepareDraw: prepareDrawAndWait,
-    draw: draw
+    prepareDraw: prepareDraw,
+    draw: draw,
+    approveLot: approveLot,
+    waitDrawLag : waitDrawLag,
+    getRewardResult : getRewardResult
 }

@@ -28,7 +28,7 @@ async function deposit(symbol, amount) {
         throw err;
     });
     await AELFHelper.pollMining(approve.TransactionId, logger).catch(err => {
-        logger.error(err.stack);
+        logger.error(err.stack ? err.stack : err);
         throw err;
     });
 
@@ -38,7 +38,7 @@ async function deposit(symbol, amount) {
         throw err;
     });
     await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
-        logger.error(err.stack);
+        logger.error(err.stack ? err.stack : err);
         throw err;
     });
 }
@@ -95,7 +95,7 @@ async function recordMerkleTree(lastLeafIndex, root) {
     });
 
     await AELFHelper.pollMining(tx.TransactionId, logger).catch(err => {
-        logger.error(err.stack);
+        logger.error(err.stack ? err.stack : err);
         throw err;
     });
 }
