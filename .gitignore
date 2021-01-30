@@ -7,5 +7,5 @@ yarn.lock
 
 /env.*
 
-/rewardList.json
+/rewardList.json*
 /logs/*
