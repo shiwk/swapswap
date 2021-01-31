@@ -21,7 +21,7 @@ async function getLastRecordedLeafIndex() {
         recorderId: ENV.aelf.record.recorderId
     });
 
-    return lastRecordedLeafIndex.value;
+    return lastRecordedLeafIndex ? lastRecordedLeafIndex.value : 0;
 }
 
 async function getSatisfiedTreeCount() {
