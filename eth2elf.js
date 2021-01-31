@@ -112,7 +112,7 @@ async function depositToSwapIfNeeded() {
     let depositELF = await getDepositAmount('ELF');
     let depositLOT = await getDepositAmount('LOT');
 
-    let expectedELF = Math.ceil(totalLockAmount / 10_000_000_000 / 400);
+    let expectedELF = Math.ceil(totalLockAmount / 10_000_000_000 / ENV.aelf.ratio.elf);
     logger.info(`expectedELF: ${expectedELF}`);
 
     if (expectedELF + ENV.aelf.swap.init_deposit.elf > depositELF) {
