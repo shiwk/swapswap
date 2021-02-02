@@ -12,7 +12,7 @@ async function balanceOf(address, symbol){
         owner: address
     });
 
-    console.log(`balance of ${address}:`,balance.balance);
+    return Number(balance.balance);
 }
 
 async function transfer(to, symbol, amount){
@@ -35,7 +35,9 @@ async function approve(spender, symbol, amount){
     });
 }
 
+
 module.exports = {
     transfer : transfer,
-    approve: approve
+    approve: approve,
+    balanceOf : balanceOf
 }

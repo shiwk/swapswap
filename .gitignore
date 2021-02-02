@@ -9,3 +9,5 @@ yarn.lock
 
 /rewardList.json*
 /logs/*
+
+/bal.json
