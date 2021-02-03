@@ -23,7 +23,7 @@ async function getBalance(address, symbol, threshold, keyword) {
 
     let issuer_elf_bal = await getBalance(ENV.aelf.issuer, "ELF", BAL.ELF.issuer, 'issuer');
 
-    let ssc_lot_bal = await getBalance(ENV.aelf.sscContract, "ELF", BAL.LOT.ssc, 'ssc');
+    let ssc_lot_bal = await getBalance(ENV.aelf.sscContract, "LOT", BAL.LOT.ssc, 'ssc');
 
     let daily_elf_bal = await getBalance(ENV.aelf.daily, "ELF", BAL.ELF.daily, 'daily');
     let daily_lot_bal = await getBalance(ENV.aelf.daily, "LOT", BAL.LOT.daily, 'daily');
